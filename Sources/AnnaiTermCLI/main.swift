@@ -1,15 +1,26 @@
 import AnnaiTermKit
 import Foundation
 
-// 薄いラッパ。純関数 run の結果を実 I/O に流し、終了コードで抜ける。
-// Swift の exit() は C stdio を flush してから抜けるため、print した stdout は切り捨てられない。
-let result = run(Array(CommandLine.arguments.dropFirst()))
+// 薄い composition root。version / help / エラーは同期描画、ask / doctor は async 実行。
+let arguments = Array(CommandLine.arguments.dropFirst())
+let command = parseCommand(arguments)
 
-for line in result.stdout {
-    print(line)
+if let result = render(command) {
+    for line in result.stdout {
+        print(line)
+    }
+    if !result.stderr.isEmpty {
+        let text = result.stderr.map { $0 + "\n" }.joined()
+        FileHandle.standardError.write(Data(text.utf8))
+    }
+    exit(result.exitCode)
 }
-if !result.stderr.isEmpty {
-    let text = result.stderr.map { $0 + "\n" }.joined()
-    FileHandle.standardError.write(Data(text.utf8))
+
+switch command {
+case .ask(let question):
+    exit(await runAsk(question))
+case .doctor:
+    exit(await runDoctor())
+default:
+    exit(0)
 }
-exit(result.exitCode)

@@ -28,7 +28,10 @@ let package = Package(
         // 薄い実行体。引数を Kit に渡し、出力と終了だけを担う。
         .executableTarget(
             name: "AnnaiTermCLI",
-            dependencies: ["AnnaiTermKit"]
+            dependencies: [
+                "AnnaiTermKit", "CatalogKit", "AdapterKit",
+                "BackendKit", "BackendTransport", "EngineKit",
+            ]
         ),
         // Xcode 非依存のスペックランナー。CLT だけ・CI (Xcode 無し) でも
         // `swift run AnnaiTermSpec` で実行でき、失敗時に exit 1 で落ちる。

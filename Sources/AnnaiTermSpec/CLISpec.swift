@@ -1,42 +1,49 @@
 import AnnaiTermKit
 
 @MainActor
-func runCLISpec() {
+private func runParseCommandSpec() {
+    expect(parseCommand(["--version"]) == .version, "--version は version コマンド")
+    expect(parseCommand(["-v"]) == .version, "短縮形 -v も version")
+    expect(parseCommand([]) == .help, "引数なしは help")
+    expect(parseCommand(["--help"]) == .help, "--help は help")
+    expect(parseCommand(["-h"]) == .help, "短縮形 -h も help")
+    expect(parseCommand(["--version", "ask"]) == .version, "診断フラグは先勝ちで短絡する")
     expect(
-        run(["--version"]) == CLIResult(stdout: [annaiTermVersion], stderr: [], exitCode: 0),
-        "--version は version を 1 行返し exit 0 を返す"
+        parseCommand(["ask", "文字を", "大きく"]) == .ask("文字を 大きく"),
+        "ask は残りのトークンを質問に連結する"
     )
-    expect(
-        run(["-v"]) == CLIResult(stdout: [annaiTermVersion], stderr: [], exitCode: 0),
-        "短縮形 -v でも version を返す"
-    )
-    expect(
-        run(["--version", "bogus"])
-            == CLIResult(stdout: [annaiTermVersion], stderr: [], exitCode: 0),
-        "後続トークンが続いても診断フラグを先勝ちで短絡する"
-    )
-    expect(
-        run([]) == CLIResult(stdout: [helpText], stderr: [], exitCode: 0),
-        "引数が無いときはヘルプを返し exit 0 を返す"
-    )
-    for flag in ["--help", "-h"] {
-        expect(
-            run([flag]) == CLIResult(stdout: [helpText], stderr: [], exitCode: 0),
-            "\(flag) はヘルプを返し exit 0 を返す"
-        )
-    }
+    expect(parseCommand(["ask"]) == .askMissingQuestion, "ask だけなら質問欠落")
+    expect(parseCommand(["ask", "--json"]) == .askMissingQuestion, "フラグだけの ask も質問欠落")
+    expect(parseCommand(["doctor"]) == .doctor, "doctor コマンド")
+    expect(parseCommand(["bogus"]) == .unknown(["bogus"]), "未知のサブコマンドは unknown")
+}
 
-    let unknown = run(["no-such-command"])
-    expect(unknown.stdout.isEmpty, "未対応の引数では標準出力に何も出さない")
-    expect(unknown.exitCode == 2, "未対応の引数は exit 2 を返す")
-    expect(unknown.stderr.count == 2, "未対応の引数はエラーとヘルプの 2 行を stderr に返す")
-    expect(unknown.stderr.first?.contains("no-such-command") == true, "エラー行に入力トークンを含める")
-    expect(unknown.stderr.last == helpText, "エラーの後にヘルプを添える")
-
-    expect(helpText.contains("annai-term"), "helpText はプロダクト名を案内する")
+@MainActor
+private func runRenderSpec() {
     expect(
-        helpText.contains("--version") && helpText.contains("--help"),
-        "helpText は実在する 2 つのフラグを案内する"
+        render(.version) == CLIResult(stdout: [annaiTermVersion], stderr: [], exitCode: 0),
+        "version は version 文字列を stdout に"
     )
+    expect(
+        render(.help) == CLIResult(stdout: [helpText], stderr: [], exitCode: 0),
+        "help は helpText を stdout に"
+    )
+    let missing = render(.askMissingQuestion)
+    expect(missing?.exitCode == 2 && missing?.stdout.isEmpty == true, "質問欠落は exit 2 / stderr")
+    let unknown = render(.unknown(["x", "y"]))
+    expect(
+        unknown?.exitCode == 2 && unknown?.stderr.first?.contains("x y") == true,
+        "unknown は入力を含むエラーと exit 2"
+    )
+    expect(render(.ask("q")) == nil, "ask は同期描画できない（nil）")
+    expect(render(.doctor) == nil, "doctor は同期描画できない（nil）")
+
+    expect(helpText.contains("annai-term") && helpText.contains("ask"), "helpText は使い方を案内する")
     expect(!annaiTermVersion.isEmpty, "version は空でない")
+}
+
+@MainActor
+func runCLISpec() {
+    runParseCommandSpec()
+    runRenderSpec()
 }
