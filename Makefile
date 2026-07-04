@@ -100,10 +100,16 @@ swift_format:
 .PHONY: swift_check
 swift_check: swift_build swift_test swift_coverage swift_lint
 
+.PHONY: ci
+# GitHub の runner は macOS 26 / Apple Intelligence を持たないため、CI では repo ガバナンス
+# (architecture-harness / skill 監査 / doc lint) のみ検証する。製品コード (Swift) のゲート
+# swift_check は macOS 26 のローカルで before-commit が回す (ADR-0007)。
+ci: architecture_harness harness_test lint_text lint
+
 .PHONY: before-commit
-# repo ガバナンス (architecture-harness / skill 監査 / doc lint) は bun 製のまま維持し、
-# 製品コードの品質ゲートは swift_check が担う。両方通って初めて完了。
-before-commit: architecture_harness harness_test lint_text lint swift_check
+# ローカル (macOS 26) の完全ゲート。repo ガバナンス + 製品コードの swift_check。
+# 両方通って初めて完了。
+before-commit: ci swift_check
 
 .PHONY: dev
 dev:
