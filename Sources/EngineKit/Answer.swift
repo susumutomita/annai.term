@@ -55,3 +55,12 @@ public func buildAnswer(
 public func retrievalFallbackId(for candidates: [CandidateSummary]) -> String? {
     candidates.first?.id
 }
+
+/// 回答を表示用の行に整形する。CLI とオーバーレイで共通の表現にする。
+public func answerLines(_ answer: Answer) -> [String] {
+    guard answer.keybindingId != nil else { return [answer.explanation] }
+    var lines = [answer.explanation]
+    if let note = answer.conflictNote { lines.append("競合: \(note)") }
+    if let followUp = answer.followUp { lines.append("次に: \(followUp)") }
+    return lines
+}

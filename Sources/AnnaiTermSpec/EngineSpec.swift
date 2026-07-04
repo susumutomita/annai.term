@@ -95,8 +95,30 @@ private func runFallbackSpec() {
 }
 
 @MainActor
+private func runAnswerLinesSpec() {
+    let none = Answer(keybindingId: nil, confidence: .none, explanation: "なし")
+    expect(answerLines(none) == ["なし"], "該当なしは説明 1 行")
+
+    let plain = Answer(keybindingId: "x", confidence: .high, explanation: "説明")
+    expect(answerLines(plain) == ["説明"], "note / followUp 無しは説明のみ")
+
+    let full = Answer(
+        keybindingId: "x",
+        confidence: .high,
+        explanation: "説明",
+        conflictNote: "衝突",
+        followUp: "次の手順"
+    )
+    expect(
+        answerLines(full) == ["説明", "競合: 衝突", "次に: 次の手順"],
+        "conflictNote と followUp を続ける"
+    )
+}
+
+@MainActor
 func runEngineSpec() {
     runRetrieveSpec()
     runAnswerSpec()
     runFallbackSpec()
+    runAnswerLinesSpec()
 }

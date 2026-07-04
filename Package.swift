@@ -10,6 +10,7 @@ let package = Package(
     ],
     products: [
         .executable(name: "annai-term", targets: ["AnnaiTermCLI"]),
+        .executable(name: "annai-term-overlay", targets: ["AnnaiTermApp"]),
         .library(name: "AnnaiTermKit", targets: ["AnnaiTermKit"]),
     ],
     targets: [
@@ -25,13 +26,24 @@ let package = Package(
         .target(name: "BackendTransport", dependencies: ["BackendKit"]),
         // 質問 → 候補絞り込み（retrieve）→ 回答組み立て（buildAnswer）。純ロジック。
         .target(name: "EngineKit", dependencies: ["CatalogKit", "BackendKit"]),
-        // 薄い実行体。引数を Kit に渡し、出力と終了だけを担う。
-        .executableTarget(
-            name: "AnnaiTermCLI",
+        // 実 I/O の結線（ghostty 起動・config 読み込み・AFM 推論）。CLI とオーバーレイで共有。
+        // カバレッジ対象外。
+        .target(
+            name: "SessionKit",
             dependencies: [
                 "AnnaiTermKit", "CatalogKit", "AdapterKit",
                 "BackendKit", "BackendTransport", "EngineKit",
             ]
+        ),
+        // 薄い実行体。引数を Kit に渡し、出力と終了だけを担う。
+        .executableTarget(
+            name: "AnnaiTermCLI",
+            dependencies: ["AnnaiTermKit", "EngineKit", "SessionKit"]
+        ),
+        // グローバルホットキー + AppKit オーバーレイ。GUI はカバレッジ対象外。
+        .executableTarget(
+            name: "AnnaiTermApp",
+            dependencies: ["AnnaiTermKit", "EngineKit", "SessionKit"]
         ),
         // Xcode 非依存のスペックランナー。CLT だけ・CI (Xcode 無し) でも
         // `swift run AnnaiTermSpec` で実行でき、失敗時に exit 1 で落ちる。
