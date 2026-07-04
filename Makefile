@@ -73,11 +73,43 @@ architecture_harness:
 harness_test:
 	bun test scripts/
 
+# --- Swift (annai-term 製品コード) ---
+# 製品は Swift ネイティブ (ADR-0007)。XCTest / swift-testing は Xcode 同梱で CLT に無いため、
+# テストは Xcode 非依存のスペックランナー (AnnaiTermSpec) で実行し、カバレッジは llvm-cov で測る。
+
+.PHONY: swift_build
+swift_build:
+	swift build
+
+.PHONY: swift_test
+swift_test:
+	swift run AnnaiTermSpec
+
+.PHONY: swift_coverage
+swift_coverage:
+	bash scripts/swift-coverage.sh
+
+.PHONY: swift_lint
+swift_lint:
+	swift format lint --strict --configuration .swift-format --recursive Sources Package.swift
+
+.PHONY: swift_format
+swift_format:
+	swift format --in-place --configuration .swift-format --recursive Sources Package.swift
+
+.PHONY: swift_check
+swift_check: swift_build swift_test swift_coverage swift_lint
+
+.PHONY: ci
+# GitHub の runner は macOS 26 / Apple Intelligence を持たないため、CI では repo ガバナンス
+# (architecture-harness / skill 監査 / doc lint) のみ検証する。製品コード (Swift) のゲート
+# swift_check は macOS 26 のローカルで before-commit が回す (ADR-0007)。
+ci: architecture_harness harness_test lint_text lint
+
 .PHONY: before-commit
-# typecheck / test / build は各 workspace が該当 script を持つ前提に依存するため、本テンプレートの
-# 既定ゲートには含めない。利用プロジェクト側で `before-commit: ... typecheck test build` のように
-# 拡張するか、"no script ならスキップ" 型 runner を用意して取り込むこと。
-before-commit: architecture_harness harness_test lint_text lint
+# ローカル (macOS 26) の完全ゲート。repo ガバナンス + 製品コードの swift_check。
+# 両方通って初めて完了。
+before-commit: ci swift_check
 
 .PHONY: dev
 dev:

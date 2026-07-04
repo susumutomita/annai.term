@@ -50,6 +50,9 @@ jobs:
           CI: "true"
         run: make install_ci
 
-      - name: lint typecheck test build
+      # 製品は Mac 専用・Swift ネイティブ・AFM 前提 (ADR-0007)。GitHub の runner は
+      # macOS 26 / Apple Intelligence を持たないため、CI では repo ガバナンスのみ検証する。
+      # Swift の swift_check は macOS 26 のローカルで make before-commit が回す。
+      - name: governance checks (harness / skill audit / doc lint)
         run: |
-          make before-commit
+          make ci

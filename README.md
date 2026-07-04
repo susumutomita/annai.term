@@ -2,6 +2,15 @@
 
 TypeScript + Bun + Biome を使った Claude Code 向けモノレポテンプレート。
 
+## このリポジトリについて
+
+このリポジトリは annai-term を開発する独立リポジトリです。annai-term は Ghostty・Herdr のキーバインドを日本語で案内する Mac ネイティブアプリで、本気の一人のためのオーダーメードソフトです。汎用性より Ghostty でのシームレスな体験を優先し、Swift ネイティブ・Mac 専用・AFM 前提で作ります。リポジトリのガバナンス（architecture-harness・skill 監査・doc lint）はテンプレート由来の Bun 製ハーネスを引き続き使います。
+
+- 採用の判断: [ADR-0006](./docs/adr/0006-adopt-annai-term-standalone.md)
+- Mac 専用・Swift ネイティブ・AFM 前提: [ADR-0007](./docs/adr/0007-swift-native-mac-only-afm.md)
+- V1 設計正本: [docs/design/annai-term-v1.md](./docs/design/annai-term-v1.md)
+- 実装: `Package.swift` / `Sources/`、品質ゲートは `make swift_check`
+
 ## ツールスタック
 
 | 用途 | ツール |

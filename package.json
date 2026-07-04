@@ -32,12 +32,12 @@
     "test:coverage": "bun run --filter '*' test:coverage",
     "typecheck": "bun run --filter '*' typecheck",
     "clean": "bun rimraf node_modules 'packages/*/node_modules' 'packages/*/dist' 'packages/*/coverage'",
-    "lint": "bun biome check .",
-    "lint:fix": "bun biome check --write .",
+    "lint": "bun biome check --vcs-enabled=true --vcs-client-kind=git --vcs-use-ignore-file=true .",
+    "lint:fix": "bun biome check --write --vcs-enabled=true --vcs-client-kind=git --vcs-use-ignore-file=true .",
     "lint:text": "bun textlint ./README.md",
     "lint-staged": "lint-staged",
-    "format": "bun biome format --write .",
-    "format:check": "bun biome format .",
+    "format": "bun biome format --write --vcs-enabled=true --vcs-client-kind=git --vcs-use-ignore-file=true .",
+    "format:check": "bun biome format --vcs-enabled=true --vcs-client-kind=git --vcs-use-ignore-file=true .",
     "prepare": "husky"
   },
   "devDependencies": {
