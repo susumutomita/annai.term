@@ -1,5 +1,41 @@
 # Plan.md
 
+### annai-term V1 足場（Swift ネイティブ化） - 2026-07-04
+
+#### 目的
+
+annai-term V1 の実装に先立ち、Mac 専用・Swift ネイティブ・AFM 前提の設計正本と ADR を確定し、SwiftPM の最小の実行可能な足場（`--version` / `--help`）を TDD で用意する。
+
+#### 制約
+
+- 製品は Swift ネイティブ（[ADR-0007](./docs/adr/0007-swift-native-mac-only-afm.md)）。汎用性より Ghostty のシームレス体験を優先。単一ユーザー専用。
+- XCTest / swift-testing は Xcode 同梱で CLT に無いため、テストは Xcode 非依存のスペックランナーで実行し、カバレッジは llvm-cov で測る。
+- ゲート（`make swift_check` = build + spec + coverage 100% + swift format lint）と repo ガバナンス（architecture-harness / harness_test / lint_text / lint）を Green にするまで未完了。
+
+#### タスク
+
+1. ADR-0006（独立リポジトリ採用）/ ADR-0007（Mac 専用・Swift ネイティブ・AFM 前提）と設計正本の Swift 化。
+2. SwiftPM 足場（Package.swift / AnnaiTermKit / AnnaiTermCLI / AnnaiTermSpec）。
+3. Swift 品質ゲート（scripts/swift-coverage.sh / Makefile の swift_check）。
+4. README に採用を明記。未マージの TS 足場 PR #11 を撤回。
+5. ゲート実行 → PR。既存 Issue #2〜#10 を Swift ベースに再設計。
+
+#### 検証手順
+
+- `make swift_check` が Green。`annai-term --version` が version を表示、未対応引数は exit 2。
+- `make before-commit`（bun ガバナンス + swift_check）が Green。
+
+#### 進捗ログ
+
+- 2026-07-04: ユーザー決定でスタックを Swift ネイティブに転換。実機で Ghostty にプラグイン API も任意コマンドの keybind 実行も無いことを確認（`+list-actions` 85 個）。起動はグローバルホットキー + AppKit オーバーレイに決定（Issue #1 の「ターミナル内完結・GUI 非対象」を ADR-0007 で緩和）。環境確認: macOS 26.5.1 / Swift 6.3.3 / FoundationModels framework は CLT SDK に存在 / フル Xcode 無し（XCTest・Testing 使用不可）。
+- 2026-07-04: main から `feat/annai-term-swift` を切り直し、SwiftPM 足場を TDD で実装。XCTest 不在のため Xcode 非依存スペックランナー `AnnaiTermSpec` を採用（14/14 pass）。`run` を副作用のない純関数にして llvm-cov で AnnaiTermKit 100% を実測。swift format lint 通過。
+
+#### 振り返り
+
+（PR 後に追記する）
+
+---
+
 ### 品質ファースト化（MVP・三流コードの再発防止） - 2026-06-13
 
 #### 目的
