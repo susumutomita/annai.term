@@ -1,9 +1,9 @@
 name: release
 
 # 製品は Mac 専用・Swift ネイティブ・AFM 前提 (ADR-0007)。release ビルドには
-# macOS 26 + FoundationModels SDK が要る。GitHub-hosted の macOS が 26 でない場合は
-# ここが失敗するため、Homebrew は build-from-source を主経路にしている。
+# macOS 26 + FoundationModels SDK が要る。macos-latest がこの SDK を持つため CI でビルドできる。
 # タグ push か手動実行で、release バイナリを tar にして release へ添付する。
+# Homebrew は build-from-source も選べる（Formula/annai-term.rb）。
 
 on:
   push:
@@ -21,6 +21,10 @@ jobs:
       - name: Check out the code
         # actions/checkout v4.3.1
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      # FoundationModels (macOS 26 SDK) を持つ最新 Xcode を明示選択する。
+      - name: Select newest Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
 
       - name: Build release binary
         run: swift build -c release --product annai-term

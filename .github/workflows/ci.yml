@@ -50,9 +50,25 @@ jobs:
           CI: "true"
         run: make install_ci
 
-      # 製品は Mac 専用・Swift ネイティブ・AFM 前提 (ADR-0007)。GitHub の runner は
-      # macOS 26 / Apple Intelligence を持たないため、CI では repo ガバナンスのみ検証する。
-      # Swift の swift_check は macOS 26 のローカルで make before-commit が回す。
+      # repo ガバナンス (architecture-harness / skill 監査 / doc lint) は Bun 製のため
+      # Linux で検証する。Swift の製品ゲートは下の macOS ジョブで回す。
       - name: governance checks (harness / skill audit / doc lint)
         run: |
           make ci
+
+  swift:
+    # macos-latest は macOS 26 SDK (FoundationModels) を持つため、製品コードの
+    # build / spec / カバレッジ 100% / swift format lint を CI でも検証する。
+    runs-on: macos-latest
+    steps:
+      - name: Check out the code
+        # actions/checkout v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      # 既定の xcode-select は古い Xcode を指すことがあり FoundationModels (macOS 26 SDK) が
+      # 無い。インストール済みで最新の Xcode を明示選択する。
+      - name: Select newest Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+
+      - name: Swift product gate (build / spec / coverage 100% / format lint)
+        run: make swift_check
