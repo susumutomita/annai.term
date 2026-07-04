@@ -100,6 +100,22 @@ swift_format:
 .PHONY: swift_check
 swift_check: swift_build swift_test swift_coverage swift_lint
 
+# インストール先。既定は PATH に載る ~/.local/bin（sudo 不要）。
+# 別の場所へ入れるときは `make install-cli PREFIX=/usr/local` のように指定する。
+PREFIX ?= $(HOME)/.local
+
+.PHONY: build-release
+build-release:
+	swift build -c release --product annai-term
+
+.PHONY: install-cli
+# annai-term CLI を release ビルドして $(PREFIX)/bin に入れる。
+install-cli: build-release
+	install -d $(PREFIX)/bin
+	install -m 0755 .build/release/annai-term $(PREFIX)/bin/annai-term
+	@echo "installed: $(PREFIX)/bin/annai-term"
+	@echo "PATH に $(PREFIX)/bin が含まれているか確認してください。"
+
 .PHONY: ci
 # GitHub の runner は macOS 26 / Apple Intelligence を持たないため、CI では repo ガバナンス
 # (architecture-harness / skill 監査 / doc lint) のみ検証する。製品コード (Swift) のゲート
