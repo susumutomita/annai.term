@@ -9,7 +9,8 @@ cd "$(dirname "$0")/.."
 BIN=.build/debug/AnnaiTermSpec
 PROFRAW=.build/annai-term.profraw
 PROFDATA=.build/annai-term.profdata
-TARGET=Sources/AnnaiTermKit
+# 製品ライブラリ層をすべて 100% に保つ（実行体 CLI / Spec は計測対象外）。
+TARGETS=(Sources/AnnaiTermKit Sources/CatalogKit)
 
 swift build --product AnnaiTermSpec \
     -Xswiftc -profile-generate -Xswiftc -profile-coverage-mapping >/dev/null
@@ -17,10 +18,10 @@ swift build --product AnnaiTermSpec \
 LLVM_PROFILE_FILE="$PROFRAW" "$BIN" >/dev/null
 xcrun llvm-profdata merge -sparse "$PROFRAW" -o "$PROFDATA"
 
-xcrun llvm-cov report "$BIN" -instr-profile "$PROFDATA" "$TARGET"
+xcrun llvm-cov report "$BIN" -instr-profile "$PROFDATA" "${TARGETS[@]}"
 
 PERCENT=$(
-    xcrun llvm-cov export "$BIN" -instr-profile "$PROFDATA" "$TARGET" --summary-only |
+    xcrun llvm-cov export "$BIN" -instr-profile "$PROFDATA" "${TARGETS[@]}" --summary-only |
         jq '.data[0].totals.lines.percent'
 )
 

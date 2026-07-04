@@ -43,19 +43,26 @@ Adapters ──▶ Catalog ──▶ Engine ──▶ Overlay(App) / CLI
 ## ドメイン型（正本）
 
 ```swift
+struct Chord: Equatable, Sendable {
+    let modifiers: [String]  // canonical order: super → ctrl → alt → shift
+    let key: String
+    var canonical: String    // 例: "super+shift+j" / "super++"
+    var display: String      // 例: "Cmd + Shift + J" / "Cmd + +"
+}
+
 struct Keybinding: Equatable, Sendable {
     enum Source: String, Sendable { case ghostty, herdr, user, generic }
     enum Scope: String, Sendable { case app, terminal, multiplexer, shell }
     let id: String
     let source: Source
     let scope: Scope
-    let sequence: [String]  // 多段入力。例: ["ctrl+b", "v"]
-    let display: String     // 表示用。例: "Ctrl+B → V" / "Cmd + +"
+    let sequence: [Chord]    // 多段入力。例: [Ctrl+B, V]。正規化済み chord の列
     let action: String
     let description: String
     let configPath: String?
     let isCustom: Bool
-    let precedence: Int      // 小さいほど先にキーを奪う
+    let precedence: Int       // 小さいほど先にキーを奪う
+    var display: String       // sequence を " → " で連結
 }
 
 struct Answer: Equatable, Sendable {
