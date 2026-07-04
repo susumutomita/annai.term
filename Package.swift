@@ -19,6 +19,10 @@ let package = Package(
         .target(name: "CatalogKit"),
         // 各ツールの設定を読み、raw keybind を Keybinding に変換する adapter 層。
         .target(name: "AdapterKit", dependencies: ["CatalogKit"]),
+        // ローカル LLM バックエンドの純ロジック（プロンプト構築・応答解析・制約検証）。
+        .target(name: "BackendKit", dependencies: ["CatalogKit"]),
+        // 実バックエンド（AFM）への結線。macOS 26 + AFM 実機でのみ推論が走るためカバレッジ対象外。
+        .target(name: "BackendTransport", dependencies: ["BackendKit"]),
         // 薄い実行体。引数を Kit に渡し、出力と終了だけを担う。
         .executableTarget(
             name: "AnnaiTermCLI",
@@ -29,7 +33,7 @@ let package = Package(
         // XCTest / swift-testing は Xcode 同梱で CLT には無いため、検証可能性を優先する。
         .executableTarget(
             name: "AnnaiTermSpec",
-            dependencies: ["AnnaiTermKit", "CatalogKit", "AdapterKit"]
+            dependencies: ["AnnaiTermKit", "CatalogKit", "AdapterKit", "BackendKit"]
         ),
     ]
 )
