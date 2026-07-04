@@ -11,6 +11,43 @@ TypeScript + Bun + Biome を使った Claude Code 向けモノレポテンプレ
 - V1 設計正本: [docs/design/annai-term-v1.md](./docs/design/annai-term-v1.md)
 - 実装: `Package.swift` / `Sources/`、品質ゲートは `make swift_check`
 
+## annai-term の使い方
+
+ビルドは Swift ツールチェイン（macOS 26 以降）で行います。
+
+```bash
+swift build -c release          # .build/release/annai-term ができます
+annai-term ask "右に分割して次のタブ"   # 質問に合うキーバインドを 1 件案内します
+annai-term doctor               # 読み込んだ設定・件数・競合・モデル可否を表示します
+```
+
+回答には、どの層（Ghostty / Herdr）のどのキーかと補足を必ず添えます。該当が無いときは該当なしと返し、近そうなキーは捏造しません。
+
+オーバーレイ版（`annai-term-overlay`）は常駐して Cmd + Option + Space で呼び出します。global hotkey を使うため、`.app` バンドル化とアクセシビリティ権限が必要です。
+
+## 起動ショートカット
+
+Ghostty はプラグイン API も任意コマンドの keybind 実行も持たないため、Ghostty 自身から直接起動する経路はありません。次のどちらかで起動します。
+
+- オーバーレイ版のグローバルホットキー（Cmd + Option + Space）で、どのアプリの上でも呼び出す。
+- CLI 版はシェルの alias（例: `alias an='annai-term ask'`）で素早く呼ぶ。
+
+## 設定の探索順
+
+- Ghostty: `ghostty +list-keybinds --default` と `--plain` を一次ソースにし、実効値とデフォルトの差分で isCustom を導く。config は `$XDG_CONFIG_HOME/ghostty/config` と `~/.config/ghostty/config` を見る。
+- Herdr: `~/.config/herdr/config.toml`（`$XDG_CONFIG_HOME` を優先）を読み、デフォルトカタログと merge する。無ければデフォルトカタログだけで動く。
+
+## プライバシー
+
+- 推論はオンデバイスの Apple Foundation Models で完結する。クラウド LLM・API キー・テレメトリーは持たない。
+- モデルへ渡すのは「質問」と「正規化済みの候補（id・source・scope・display・action・description）」だけ。pane 内容・shell history・コードは payload の型に構造上含まれず、`PrivacySpec` でプロンプトを再構成できることを検証している。
+
+## 既知の制限
+
+- Apple Foundation Models は macOS 26 と Apple Intelligence を要求する。利用できない環境では決定的な retrieval にフォールバックする。
+- オーバーレイ版の対話動作にはアクセシビリティ権限と `.app` バンドル化が要る。CI は macOS 26 runner が無いため repo ガバナンスのみを検証し、Swift の製品ゲートはローカルで回す。
+- OS・IME・アプリフォーカス層はすべては観測しきれないため、競合の説明では「推定」と明示する。
+
 ## ツールスタック
 
 | 用途 | ツール |
