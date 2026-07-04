@@ -2,4 +2,5 @@
 runCLISpec()
 runCatalogSpec()
 runGhosttySpec()
+runHerdrSpec()
 specSummaryAndExit()
