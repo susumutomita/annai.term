@@ -1,0 +1,21 @@
+{
+  "name": "annai-term",
+  "version": "0.1.0",
+  "description": "Ghostty・Herdr のキーバインドを日本語で案内するターミナル完結の CLI / TUI。",
+  "author": "Susumu Tomita <oyster880@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "annai-term": "./bin/annai-term.ts"
+  },
+  "exports": {
+    ".": "./src/cli.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
+    "typecheck": "tsc --noEmit",
+    "build": "bun build ./bin/annai-term.ts --target=bun --outdir=dist"
+  }
+}

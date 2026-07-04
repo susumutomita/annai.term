@@ -2,6 +2,15 @@
 
 TypeScript + Bun + Biome を使った Claude Code 向けモノレポテンプレート。
 
+## このリポジトリについて
+
+このリポジトリは annai-term を開発する独立リポジトリです。annai-term は Ghostty・Herdr のキーバインドを日本語で案内するターミナル完結の CLI / TUI です。`typescript-template` 由来のハーネスを土台に使います。
+
+- 採用の判断: [ADR-0006](./docs/adr/0006-adopt-annai-term-standalone.md)
+- ローカル LLM 方針: [ADR-0007](./docs/adr/0007-local-llm-first-no-cloud.md)
+- V1 設計正本: [docs/design/annai-term-v1.md](./docs/design/annai-term-v1.md)
+- 実装: `packages/annai-term`
+
 ## ツールスタック
 
 | 用途 | ツール |

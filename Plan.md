@@ -1,5 +1,42 @@
 # Plan.md
 
+### annai-term V1 足場（Issue 2） - 2026-07-04
+
+#### 目的
+
+annai-term V1 の実装に先立ち、V1 全体の設計正本と ADR を確定し、`packages/annai-term` の最小の実行可能な足場（`--version` / `--help`）を TDD で用意する。後続 Issue はこの足場と設計正本の上に積み上げる。
+
+#### 制約
+
+- 作業順序: ドキュメント更新（設計正本・ADR・仕様）→ 足場実装。
+- `/feature` フローに従う（ヒアリング → 仕様 → 設計 → 実装 → ゲート）。
+- 実行時依存ゼロ。typecheck / build 用に TypeScript と `@types/bun` を devDependency として追加する。
+- ゲート（architecture-harness → make before-commit → typecheck → coverage 100% test → build）を全て Green にするまで未完了。
+
+#### タスク
+
+1. ADR-0006（独立リポジトリ採用）/ ADR-0007（ローカル LLM 方針）と `docs/design/annai-term-v1.md`（設計正本）。
+2. `docs/specs/2026-07-04-annai-term-scaffold.md`（足場仕様書）。
+3. `packages/annai-term` の足場（package.json / tsconfig / bunfig / src / bin / test）。
+4. README に独立リポジトリ採用を明記。
+5. ゲート実行 → PR。
+
+#### 検証手順
+
+- `bun run --filter annai-term test` / `typecheck` / `build` が Green。coverage 100%。
+- `annai-term --version` が version を表示する。引数なし・`--help` はヘルプ、未対応引数は exit code 2。
+- `make before-commit` が Green。
+
+#### 進捗ログ
+
+- 2026-07-04: ブランチ `feat/annai-term-scaffold`。ヒアリングで 3 点を決定（タスク調整型で進行 / ADR は 2 本に分割 / 実行時依存ゼロの純 CLI）。実機で `ghostty +list-keybinds --default` と Herdr の config 経路（`herdr config` は `reset-keys` のみ、カスタム keybind は config.toml 保存）を確認して設計前提を確定。TDD で Red → Green、`run` を副作用のない純関数にして coverage 100%。bin は実プロセスの subprocess テストで検証。
+
+#### 振り返り
+
+（PR 後に追記する）
+
+---
+
 ### 品質ファースト化（MVP・三流コードの再発防止） - 2026-06-13
 
 #### 目的

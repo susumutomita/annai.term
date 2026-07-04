@@ -1,0 +1,13 @@
+# Bun は bunfig.toml を親ディレクトリへ遡って探索しないため、ルート設定は
+# このパッケージを cwd にした実行 (`bun test` / `bun install`) には効かない。
+# ルート bunfig.toml と同じ防御・閾値をここにも明示して一貫させる。
+
+[install]
+# ルートと同じく Bun の暗黙信頼 (top 500 npm パッケージの lifecycle script) を空にする。
+# 詳細は ADR-0001 / docs/architecture/harness.md。
+trustedDependencies = []
+
+[test]
+# カバレッジ 100% は Definition of Done（docs/architecture/quality-bar.md / ADR-0003）。
+# パッケージ単位の `bun test --coverage`（cwd = このディレクトリ）でも 100% 未満を失敗させる。
+coverageThreshold = 1
