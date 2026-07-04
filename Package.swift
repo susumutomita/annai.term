@@ -23,6 +23,8 @@ let package = Package(
         .target(name: "BackendKit", dependencies: ["CatalogKit"]),
         // 実バックエンド（AFM）への結線。macOS 26 + AFM 実機でのみ推論が走るためカバレッジ対象外。
         .target(name: "BackendTransport", dependencies: ["BackendKit"]),
+        // 質問 → 候補絞り込み（retrieve）→ 回答組み立て（buildAnswer）。純ロジック。
+        .target(name: "EngineKit", dependencies: ["CatalogKit", "BackendKit"]),
         // 薄い実行体。引数を Kit に渡し、出力と終了だけを担う。
         .executableTarget(
             name: "AnnaiTermCLI",
@@ -33,7 +35,7 @@ let package = Package(
         // XCTest / swift-testing は Xcode 同梱で CLT には無いため、検証可能性を優先する。
         .executableTarget(
             name: "AnnaiTermSpec",
-            dependencies: ["AnnaiTermKit", "CatalogKit", "AdapterKit", "BackendKit"]
+            dependencies: ["AnnaiTermKit", "CatalogKit", "AdapterKit", "BackendKit", "EngineKit"]
         ),
     ]
 )
