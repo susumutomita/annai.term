@@ -65,5 +65,10 @@ jobs:
         # actions/checkout v4.3.1
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
+      # 既定の xcode-select は古い Xcode を指すことがあり FoundationModels (macOS 26 SDK) が
+      # 無い。インストール済みで最新の Xcode を明示選択する。
+      - name: Select newest Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+
       - name: Swift product gate (build / spec / coverage 100% / format lint)
         run: make swift_check
