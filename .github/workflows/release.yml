@@ -1,0 +1,37 @@
+name: release
+
+# 製品は Mac 専用・Swift ネイティブ・AFM 前提 (ADR-0007)。release ビルドには
+# macOS 26 + FoundationModels SDK が要る。GitHub-hosted の macOS が 26 でない場合は
+# ここが失敗するため、Homebrew は build-from-source を主経路にしている。
+# タグ push か手動実行で、release バイナリを tar にして release へ添付する。
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Check out the code
+        # actions/checkout v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Build release binary
+        run: swift build -c release --product annai-term
+
+      - name: Package
+        run: |
+          tar -czf annai-term-macos-arm64.tar.gz -C .build/release annai-term
+          shasum -a 256 annai-term-macos-arm64.tar.gz
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${GITHUB_REF_NAME}" annai-term-macos-arm64.tar.gz --clobber
