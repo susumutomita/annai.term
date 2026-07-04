@@ -117,9 +117,8 @@ install-cli: build-release
 	@echo "PATH に $(PREFIX)/bin が含まれているか確認してください。"
 
 .PHONY: ci
-# GitHub の runner は macOS 26 / Apple Intelligence を持たないため、CI では repo ガバナンス
-# (architecture-harness / skill 監査 / doc lint) のみ検証する。製品コード (Swift) のゲート
-# swift_check は macOS 26 のローカルで before-commit が回す (ADR-0007)。
+# repo ガバナンス (architecture-harness / skill 監査 / doc lint)。Bun 製のため CI では
+# Linux ジョブで回す。製品コード (Swift) の swift_check は CI の macOS ジョブで回す。
 ci: architecture_harness harness_test lint_text lint
 
 .PHONY: before-commit

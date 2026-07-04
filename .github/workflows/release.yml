@@ -1,9 +1,9 @@
 name: release
 
 # 製品は Mac 専用・Swift ネイティブ・AFM 前提 (ADR-0007)。release ビルドには
-# macOS 26 + FoundationModels SDK が要る。GitHub-hosted の macOS が 26 でない場合は
-# ここが失敗するため、Homebrew は build-from-source を主経路にしている。
+# macOS 26 + FoundationModels SDK が要る。macos-latest がこの SDK を持つため CI でビルドできる。
 # タグ push か手動実行で、release バイナリを tar にして release へ添付する。
+# Homebrew は build-from-source も選べる（Formula/annai-term.rb）。
 
 on:
   push:
