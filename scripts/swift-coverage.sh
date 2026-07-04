@@ -11,7 +11,7 @@ PROFRAW=.build/annai-term.profraw
 PROFDATA=.build/annai-term.profdata
 # 製品ライブラリ層をすべて 100% に保つ（実行体 CLI / Spec は計測対象外）。
 # BackendTransport（AFM 実結線）は macOS 26 + AFM 実機でのみ走るため計測対象外。
-TARGETS=(Sources/AnnaiTermKit Sources/CatalogKit Sources/AdapterKit Sources/BackendKit)
+TARGETS=(Sources/AnnaiTermKit Sources/CatalogKit Sources/AdapterKit Sources/BackendKit Sources/EngineKit)
 
 swift build --product AnnaiTermSpec \
     -Xswiftc -profile-generate -Xswiftc -profile-coverage-mapping >/dev/null
