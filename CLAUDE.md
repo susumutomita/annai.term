@@ -49,8 +49,6 @@ PR 作成前の必須ゲート（順序・コマンドは AGENTS.md の「品質
 | `/architecture-harness` | invariant の機械検証と `why <RULE_ID>` での意図表示 |
 | `/skill-audit` | スキル・フック・設定の監査。`.claude/` を変更したら必須 |
 | `/follow-up` | scope 外発見の記録・解消管理 |
-| `/init-project` | 初回スキャフォールド（ユーザー専用） |
-| `/frontend-design` | 高品質なフロントエンド実装 |
 
 スキルの書き方は AGENTS.md の「スキルの書き方」を正本とし、`.claude/rules/skill-authoring.md`（path-scoped rule）が `.claude/skills/` 配下の作業時に自動で読み込まれる。
 

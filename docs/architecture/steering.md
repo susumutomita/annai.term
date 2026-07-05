@@ -23,7 +23,7 @@
 | 決定論的 harness | 機械可読な invariant の全件・差分スキャン。守られたかを真偽で判定する正本 | `scripts/architecture-harness.ts`（検出ロジック）、`scripts/architecture-harness.test.ts`（検出のテスト）、`docs/architecture/harness.md`（invariant の文章正本） |
 | Hook | ツール実行の前後・セッション境界で決定論的に走るシェル | `.claude/settings.json` の `hooks`（PreToolUse の危険コマンド・設定ファイル編集ブロック、PostToolUse の Biome 自動修正・テストスタイル確認、Stop / SessionStart / PreCompact）、`.claude/scripts/*.sh`（`check-test-style.sh`、`follow-up-reminder.sh`、`stop-gate-reminder.sh`） |
 | CLAUDE.md / AGENTS.md | 常時ロードされる不変の方針・ツールスタック・作業順序・制約 | `CLAUDE.md`（Claude Code 固有の運用ルール。`AGENTS.md` を import）、`AGENTS.md`（ツールスタック・品質ゲート・制約の共通正本） |
-| Skill | 状況に応じて踏む手順とサブコマンド。description が発火条件 | `.claude/skills/<name>/SKILL.md`（`feature`、`architecture-harness`、`follow-up`、`skill-audit`、`init-project`） |
+| Skill | 状況に応じて踏む手順とサブコマンド。description が発火条件 | `.claude/skills/<name>/SKILL.md`（`feature`、`architecture-harness`、`follow-up`、`skill-audit`） |
 | Subagent | 並列・隔離実行し最終結果のみ親へ戻す | `.claude/skills/feature/SKILL.md` のフェーズ 4 が Agent ツールで 5 役割（PM / Designer / Developer / QA / User）を同時起動する。専用の `.claude/agents/*.md` 定義は現状置かず、`/feature` のオーケストレーションに集約している |
 | path-scoped Rule | 特定パスで作業するときだけ自動でロードされるルール | `.claude/rules/*.md`（frontmatter の `paths` でスコープ限定。`quality-bar.md` は `packages/`・`src/`・`scripts/`、`skill-authoring.md` は `.claude/skills/`・`.claude/scripts/`） |
 
@@ -39,7 +39,7 @@
 | セッション開始・終了時のリマインド | Hook（SessionStart / Stop） | `follow-up-reminder.sh` / `stop-gate-reminder.sh` |
 | ツールスタック・品質ゲートの順序・常時守る制約 | CLAUDE.md / AGENTS.md | `AGENTS.md` の「ツールスタック」「品質ゲート」「制約」 |
 | サブコマンドを持つ反復手順 | Skill | `/follow-up add`、`/architecture-harness why <RULE_ID>` |
-| ユーザーが明示的にだけ起動する操作 | Skill（`disable-model-invocation: true`） | `/init-project` |
+| ユーザーが明示的にだけ起動する操作 | Skill（`disable-model-invocation: true`） | （現状は該当なし） |
 | 並列に視点を分けて走らせ結果を統合する作業 | Subagent | `/feature` フェーズ 4 の 5 役割 |
 | `packages/`・`src/`・`scripts/` でだけ効かせたい品質基準 | path-scoped Rule | `.claude/rules/quality-bar.md` |
 | `.claude/` 配下でだけ効かせたい authoring 規律 | path-scoped Rule | `.claude/rules/skill-authoring.md` |
