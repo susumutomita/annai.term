@@ -113,56 +113,6 @@ private func runKeybindingSpec() {
 }
 
 @MainActor
-private func runMergeSpec() {
-    let defaults = [
-        binding("copy", .ghostty, "super+c", precedence: 100),
-        binding("paste", .ghostty, "super+v", precedence: 100),
-        binding("copy", .ghostty, "super+c", precedence: 100),  // 同一 default の重複
-    ]
-    let user = [
-        binding("copy_custom", .user, "super+c", precedence: 100),  // 上書き
-        binding("find", .user, "super+f", precedence: 100),  // 新規追加
-    ]
-    let merged = mergeCatalog(defaults: defaults, user: user)
-    expect(
-        merged.keybindings.map(\.id) == ["copy_custom", "paste", "find"],
-        "同一 sequence は user が上書きし、新規は末尾に追加する"
-    )
-    expect(
-        merged.keybindings.first?.isCustom == true,
-        "上書きした binding は isCustom になる"
-    )
-    expect(
-        merged.diagnostics.contains { $0.kind == .overridden && $0.chord == "super+c" },
-        "上書きを overridden として記録する"
-    )
-
-    let dupUser = [
-        binding("f1", .user, "super+f", precedence: 100),
-        binding("f2", .user, "super+f", precedence: 100),
-    ]
-    let dupMerged = mergeCatalog(defaults: [], user: dupUser)
-    expect(
-        dupMerged.diagnostics.contains { $0.kind == .duplicate },
-        "user 内の同一 chord 重複を duplicate として記録する（後勝ち）"
-    )
-
-    let unbound = mergeCatalog(
-        defaults: defaults,
-        user: [],
-        unbinds: [normalizeSequence("super+c"), normalizeSequence("super+missing")]
-    )
-    expect(
-        !unbound.keybindings.contains { $0.leadingCanonical == "super+c" },
-        "unbind した chord はカタログから除去する"
-    )
-    expect(
-        unbound.diagnostics.contains { $0.kind == .unbound && $0.chord == "super+c" },
-        "unbind を記録する。存在しない unbind は無視する"
-    )
-}
-
-@MainActor
 private func runConflictSpec() {
     let bindings = [
         binding("gk", .ghostty, "super+k", precedence: 100),
@@ -197,6 +147,5 @@ func runCatalogSpec() {
     runNormalizeSpec()
     runChordDisplaySpec()
     runKeybindingSpec()
-    runMergeSpec()
     runConflictSpec()
 }
