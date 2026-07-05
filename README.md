@@ -1,21 +1,32 @@
 # annai-term
 
-Ghostty・Herdr のキーバインドを日本語で聞ける Mac ネイティブツールです。「右に分割して次のタブ」のように尋ねると、どの層（Ghostty / Herdr）のどのキーかを案内します。
+> Ask about your Ghostty and Herdr keybindings in plain language — answered on-device, on your Mac.
 
-本気の一人のためのオーダーメードソフトで、汎用性より Ghostty でのシームレスな体験を優先します。Swift ネイティブ・Mac 専用・オンデバイスの Apple Foundation Models 前提です（[ADR-0007](./docs/adr/0007-swift-native-mac-only-afm.md)）。
+[![CI](https://github.com/susumutomita/annai.term/actions/workflows/ci.yml/badge.svg)](https://github.com/susumutomita/annai.term/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/susumutomita/annai.term)](https://github.com/susumutomita/annai.term/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+![Platform](https://img.shields.io/badge/platform-macOS%2026%2B-black)
 
-## インストール
+`annai-term` answers questions like "split right and go to the next tab" by telling you which key does it and which layer — Ghostty or Herdr — owns it. It runs entirely on your Mac with Apple's on-device Foundation Models: no cloud, no API keys, no telemetry.
 
-macOS 26 以降と Swift ツールチェイン（Command Line Tools か Xcode）が要ります。どちらの経路もソースからビルドします。
+It is a bespoke tool built for a single user. It favors a seamless "ask from anywhere" experience over broad portability, so it is macOS only, Swift-native, and Apple Foundation Models first ([ADR-0007](./docs/adr/0007-swift-native-mac-only-afm.md)).
 
-Homebrew から入れる場合は次を実行します。
+## Why
+
+Ghostty has no plugin API and cannot bind a key to run an arbitrary command, so nothing can launch a helper from Ghostty itself. `annai-term` instead runs as a CLI and as a global-hotkey overlay, reading your real keybindings from `ghostty +list-keybinds` and `~/.config/herdr/config.toml`.
+
+## Install
+
+Requires macOS 26 or later and a Swift toolchain (Command Line Tools or Xcode). Both paths build from source.
+
+Homebrew:
 
 ```bash
 brew tap susumutomita/annai-term https://github.com/susumutomita/annai.term
 brew install annai-term
 ```
 
-make で `~/.local/bin` へ入れる場合は次を実行します。
+Make, which installs to `~/.local/bin`:
 
 ```bash
 git clone https://github.com/susumutomita/annai.term
@@ -24,62 +35,52 @@ make install-cli
 annai-term --version
 ```
 
-`~/.local/bin` が PATH に無い場合は通してください。別の場所へ入れるときは `make install-cli PREFIX=/usr/local` のように指定します（`/usr/local` は sudo が要ることがあります）。試すだけなら `swift run annai-term ask "..."` でも動きます。
+Add `~/.local/bin` to your `PATH` if it is not already there. Install elsewhere with `make install-cli PREFIX=/usr/local` (`/usr/local` may need `sudo`). To try it without installing, run `swift run annai-term ask "..."`.
 
-## 使い方
-
-```bash
-annai-term ask "右に分割して次のタブ"   # 質問に合うキーバインドを 1 件案内します
-annai-term doctor                        # 読み込んだ設定・件数・競合・モデル可否を表示します
-```
-
-回答にはどの層のどのキーかと補足を必ず添えます。該当が無いときは該当なしと返し、近そうなキーは捏造しません。
-
-## 起動ショートカット（オーバーレイ）
-
-オーバーレイ版 `annai-term-overlay` は常駐して Cmd + Option + Space で呼び出します。Ghostty はプラグイン API も任意コマンドの keybind 実行も持たないため、Ghostty 自身から直接起動する経路はありません。
-
-- オーバーレイ版のグローバルホットキーで、どのアプリの上でも呼び出す。
-- CLI 版はシェルの alias（例: `alias an='annai-term ask'`）で素早く呼ぶ。
-
-オーバーレイの global hotkey は `.app` バンドル化とアクセシビリティ権限が前提です。
-
-## 仕組み
-
-質問はローカルだけで処理します。
-
-- Adapters: `ghostty +list-keybinds` と `~/.config/herdr/config.toml` を読む。
-- Catalog: chord を正規化し、default と user を merge し、層をまたぐ競合を検出する。
-- Engine: 同義語辞書で候補を絞り、回答を組み立てる。
-- Backend: Apple Foundation Models で候補から 1 件を選ぶ。棄権や利用不可のときは決定的な retrieval にフォールバックする。
-
-設計正本は [docs/design/annai-term-v1.md](./docs/design/annai-term-v1.md) です。
-
-## 設定の探索順
-
-- Ghostty: `ghostty +list-keybinds --default` と `--plain` を一次ソースにし、実効値とデフォルトの差分で isCustom を導く。config は `$XDG_CONFIG_HOME/ghostty/config` と `~/.config/ghostty/config` を見る。
-- Herdr: `~/.config/herdr/config.toml`（`$XDG_CONFIG_HOME` を優先）を読み、デフォルトカタログと merge する。無ければデフォルトカタログだけで動く。
-
-## プライバシー
-
-- 推論はオンデバイスの Apple Foundation Models で完結する。クラウド LLM・API キー・テレメトリーは持たない。
-- モデルへ渡すのは「質問」と「正規化済みの候補（id・source・scope・display・action・description）」だけ。pane 内容・shell history・コードは payload の型に構造上含まれず、`PrivacySpec` でプロンプトを再構成できることを検証している。
-
-## 既知の制限
-
-- Apple Foundation Models は macOS 26 と Apple Intelligence を要求する。利用できない環境では決定的な retrieval にフォールバックする。
-- オーバーレイ版の対話動作にはアクセシビリティ権限と `.app` バンドル化が要る。
-- AFM の live 推論とオーバーレイの対話はデスクトップセッションが要るため、CI では build・spec・カバレッジまでを検証する。release バイナリは macOS の CI が tar にして添付する。
-
-## 開発
+## Usage
 
 ```bash
-make swift_check     # build + spec + カバレッジ 100% + swift format lint
-make before-commit   # 上記 + repo ガバナンス（architecture-harness / skill 監査 / doc lint）
+annai-term ask "split right and go to the next tab"   # answers one keybinding
+annai-term doctor                                      # shows config, counts, conflicts, model status
 ```
 
-リポジトリのガバナンスは typescript-template 由来の Bun 製ハーネスを使います。設計判断は [docs/adr/](./docs/adr/)、invariant は [docs/architecture/harness.md](./docs/architecture/harness.md) を参照します。
+Every answer names the layer (Ghostty / Herdr), the key, and a short note. If nothing matches, it says so — it never invents a key that does not exist.
 
-## ライセンス
+## Overlay (global hotkey)
 
-MIT。
+`annai-term-overlay` runs in the background and is summoned with Cmd + Option + Space over any app. This is the seamless launch path, since Ghostty exposes neither a plugin API nor an arbitrary-command keybind. The global hotkey requires bundling as a `.app` and Accessibility permission.
+
+## How it works
+
+Everything runs locally.
+
+- Adapters read `ghostty +list-keybinds` and `~/.config/herdr/config.toml`.
+- Catalog normalizes chords, merges defaults with your config, and detects cross-layer conflicts.
+- Engine narrows candidates with a synonym dictionary and builds the answer.
+- Backend asks Apple Foundation Models to pick one candidate. If it abstains or is unavailable, a deterministic retrieval fallback answers instead.
+
+The design of record is [docs/design/annai-term-v1.md](./docs/design/annai-term-v1.md).
+
+## Privacy
+
+- Inference runs on-device via Apple Foundation Models. There is no cloud LLM, API key, or telemetry.
+- The model receives only your question plus normalized candidates (id, source, scope, display, action, description). Pane contents, shell history, and code cannot enter the payload by construction, which is verified in `PrivacySpec`.
+
+## Limitations
+
+- Apple Foundation Models requires macOS 26 and Apple Intelligence. Without it, `annai-term` falls back to deterministic retrieval.
+- The overlay's interaction needs Accessibility permission and `.app` bundling.
+- OS, IME, and app-focus layers cannot be fully observed, so conflict explanations are marked as estimates.
+
+## Development
+
+```bash
+make swift_check     # build + spec + 100% line coverage + swift-format lint
+make before-commit   # the above + repo governance (harness / skill audit / doc lint)
+```
+
+CI verifies repo governance on Linux and the Swift product gate on macOS, and a tagged release attaches a built binary. Tests live in `Sources/AnnaiTermSpec`, an Xcode-free spec runner, because XCTest and Swift Testing ship only with full Xcode. See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
