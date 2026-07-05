@@ -31,7 +31,7 @@ Adapters ──▶ Catalog ──▶ Engine ──▶ Overlay(App) / CLI
 | モジュール（Swift target） | 責務 |
 | --- | --- |
 | `AdapterKit` | Ghostty（`ghostty +list-keybinds`）/ Herdr（`config.toml`）の生設定を読み、raw keybind を取り出す。 |
-| `CatalogKit` | raw keybind を正規化・merge し、競合を検出して `[Keybinding]` を作る。 |
+| `CatalogKit` | raw keybind を正規化し、競合を検出して `[Keybinding]` を作る（default と user の merge は各 adapter が行う）。 |
 | `EngineKit` | 質問から候補を絞り（retrieve）、Backend に制約付き選択をさせ（answer）、層情報付きの回答を組み立てる（explain）。 |
 | `AFMBackend` | AFM（`FoundationModels`）による候補からの分類。Ollama を任意 fallback に持つ。 |
 | `AnnaiTermApp` | グローバルホットキー + AppKit オーバーレイ。composition root。 |
