@@ -19,26 +19,6 @@ install_ci:
 setup-hooks:
 	bun run prepare
 
-.PHONY: build
-build:
-	bun run build
-
-.PHONY: clean
-clean:
-	bun run clean
-
-.PHONY: test
-test:
-	bun run test
-
-.PHONY: test_coverage
-test_coverage:
-	bun run test:coverage
-
-.PHONY: test_watch
-test_watch:
-	bun run --filter '*' test --watch
-
 .PHONY: lint
 lint:
 	bun run lint
@@ -50,10 +30,6 @@ lint_fix:
 .PHONY: lint_text
 lint_text:
 	bun run lint:text
-
-.PHONY: typecheck
-typecheck:
-	bun run typecheck
 
 .PHONY: format
 format:
@@ -68,8 +44,7 @@ architecture_harness:
 	bun scripts/architecture-harness.ts --staged --fail-on=error
 
 .PHONY: harness_test
-# harness 自体の invariant 検出ロジックを検証する。workspace 構成に依存しないため
-# 既定ゲートに含める (workspace 側のテストは利用プロジェクトで before-commit に足す)。
+# harness 自体の invariant 検出ロジックを検証する。
 harness_test:
 	bun test scripts/
 
@@ -125,7 +100,3 @@ ci: architecture_harness harness_test lint_text lint
 # ローカル (macOS 26) の完全ゲート。repo ガバナンス + 製品コードの swift_check。
 # 両方通って初めて完了。
 before-commit: ci swift_check
-
-.PHONY: dev
-dev:
-	bun run dev

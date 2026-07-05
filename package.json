@@ -1,37 +1,25 @@
 {
-  "name": "typescript-template",
-  "version": "1.0.0",
-  "description": "TypeScript + Bun + Hono + Vite + React + Biome の Claude Code 向けモノレポテンプレート。サプライチェイン防御 (ADR-0001) と architecture-harness invariant が既定で入っている。",
+  "name": "annai-term",
+  "version": "0.1.0",
+  "description": "annai-term のリポジトリツール。Bun 製ガバナンスハーネス（architecture-harness / textlint / biome）。製品コードは Swift（Package.swift / Sources）。",
   "author": "Susumu Tomita <oyster880@gmail.com>",
   "license": "MIT",
   "private": true,
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/susumutomita/typescript-template.git"
+    "url": "git+https://github.com/susumutomita/annai.term.git"
   },
-  "homepage": "https://github.com/susumutomita/typescript-template#readme",
+  "homepage": "https://github.com/susumutomita/annai.term#readme",
   "bugs": {
-    "url": "https://github.com/susumutomita/typescript-template/issues"
+    "url": "https://github.com/susumutomita/annai.term/issues"
   },
   "packageManager": "bun@1.3.11",
   "engines": {
     "bun": ">=1.3.0",
     "node": ">=22.0.0"
   },
-  "workspaces": [
-    "packages/*"
-  ],
-  "overrides": {
-    "hono": "4.12.23"
-  },
   "scripts": {
-    "dev": "bun run --filter '*' dev",
-    "build": "bun run --filter '*' build",
-    "test": "bun run --filter '*' test",
-    "test:coverage": "bun run --filter '*' test:coverage",
-    "typecheck": "bun run --filter '*' typecheck",
-    "clean": "bun rimraf node_modules 'packages/*/node_modules' 'packages/*/dist' 'packages/*/coverage'",
     "lint": "bun biome check --vcs-enabled=true --vcs-client-kind=git --vcs-use-ignore-file=true .",
     "lint:fix": "bun biome check --write --vcs-enabled=true --vcs-client-kind=git --vcs-use-ignore-file=true .",
     "lint:text": "bun textlint ./README.md",
@@ -44,7 +32,6 @@
     "@biomejs/biome": "^2.4.16",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
-    "rimraf": "^6.1.3",
     "textlint": "^15.7.1",
     "@textlint-ja/textlint-rule-preset-ai-writing": "^1.7.0",
     "textlint-rule-ja-no-abusage": "^3.0.0",
