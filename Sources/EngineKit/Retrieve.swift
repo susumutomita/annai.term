@@ -2,9 +2,10 @@ import CatalogKit
 import Foundation
 
 // 日本語の言い回しを action / description の英語語彙へ橋渡しする辞書。決定的で説明可能。
+// マッチ時は日本語キー自体も検索語に足す（Herdr の日本語 description に直接当てる）。
 private let synonyms: [String: [String]] = [
     "分割": ["split"],
-    "ペイン": ["split", "pane"],
+    "ペイン": ["pane"],
     "タブ": ["tab"],
     "文字": ["font"],
     "大きく": ["increase", "font"],
@@ -13,6 +14,15 @@ private let synonyms: [String: [String]] = [
     "閉じ": ["close", "detach", "quit"],
     "残し": ["detach"],
     "抜け": ["detach"],
+    "移動": ["focus"],
+    "左": ["left"],
+    "右": ["right"],
+    "上": ["up"],
+    "下": ["down"],
+    "作り": ["new"],
+    "作成": ["new"],
+    "新し": ["new"],
+    "新規": ["new"],
     "次": ["next"],
     "前": ["previous", "prev"],
     "コピー": ["copy"],
@@ -30,6 +40,7 @@ public func retrieve(_ question: String, catalog: [Keybinding], limit: Int = 8) 
     let normalized = question.precomposedStringWithCompatibilityMapping.lowercased()
     var terms: Set<String> = []
     for (japanese, english) in synonyms where normalized.contains(japanese) {
+        terms.insert(japanese)
         for word in english { terms.insert(word) }
     }
     for token in normalized.split(whereSeparator: { !$0.isLetter && !$0.isNumber }) {

@@ -1,6 +1,27 @@
 import CatalogKit
 import Foundation
 
+// Ghostty が第一に担う操作の日本語 description。Herdr 側の日本語 description と対称にして、
+// retrieve のスコアリングが層に偏らないようにする（pane/workspace 等 Herdr 固有語は含めない）。
+private let ghosttyDescriptions: [String: String] = [
+    "copy_to_clipboard": "クリップボードにコピー",
+    "paste_from_clipboard": "クリップボードから貼り付け",
+    "increase_font_size": "文字を大きくする",
+    "decrease_font_size": "文字を小さくする",
+    "reset_font_size": "文字サイズをリセットする",
+    "next_tab": "次のタブ",
+    "previous_tab": "前のタブ",
+    "new_tab": "新しいタブ",
+    "quit": "終了する",
+    "reload_config": "設定をリロードする",
+]
+
+/// action（`name:arg` 形式もある）を日本語 description にする。未知の action は action 名を返す。
+private func ghosttyDescription(_ action: String) -> String {
+    let base = String(action.prefix { $0 != ":" })
+    return ghosttyDescriptions[base] ?? action
+}
+
 /// `ghostty +list-keybinds` 出力のパース結果。
 public struct GhosttyParseResult: Equatable, Sendable {
     public let keybindings: [Keybinding]
@@ -67,7 +88,7 @@ public func parseGhosttyKeybinds(_ output: String) -> GhosttyParseResult {
                 scope: .app,
                 sequence: sequence,
                 action: action,
-                description: action,
+                description: ghosttyDescription(action),
                 precedence: 100
             )
         )
