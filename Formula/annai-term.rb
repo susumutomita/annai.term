@@ -9,8 +9,8 @@
 class AnnaiTerm < Formula
   desc "Answer Ghostty and Herdr keybindings in Japanese, on-device (macOS)"
   homepage "https://github.com/susumutomita/annai.term"
-  url "https://github.com/susumutomita/annai.term/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "741a1fa8425c6c1b0b01e83705a391e7c88bdc0b0d6788ee76106c41ff3c968a"
+  url "https://github.com/susumutomita/annai.term/archive/refs/tags/v0.1.1.tar.gz"
+  sha256 "SHA256_PLACEHOLDER"
   license "MIT"
   head "https://github.com/susumutomita/annai.term.git", branch: "main"
 
@@ -22,6 +22,6 @@ class AnnaiTerm < Formula
   end
 
   test do
-    assert_match "0.1.0", shell_output("#{bin}/annai-term --version")
+    assert_match "0.1.1", shell_output("#{bin}/annai-term --version")
   end
 end
