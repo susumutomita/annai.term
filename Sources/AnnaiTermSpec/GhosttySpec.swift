@@ -27,6 +27,12 @@ private func runGhosttyParseSpec() {
         "非 keybind 行・=無し・trigger 空・action 空を unknown に集約する"
     )
 
+    expect(
+        result.keybindings.first { $0.action == "copy_to_clipboard:mixed" }?.description
+            == "クリップボードにコピー",
+        "既知 action には日本語 description を付ける"
+    )
+
     let plus = result.keybindings.first { $0.action == "increase_font_size:1" }
     expect(
         plus?.sequence == [Chord(modifiers: ["super"], key: "=")],
@@ -56,6 +62,10 @@ private func runGhosttyCustomSpec() {
     expect(byAction("copy_to_clipboard:mixed")?.isCustom == false, "既定と同じ binding は isCustom にしない")
     expect(byAction("my_custom_action")?.isCustom == true, "action が既定と違う binding は isCustom にする")
     expect(byAction("new_binding")?.isCustom == true, "既定に無い binding は isCustom にする")
+    expect(
+        byAction("new_binding")?.description == "new_binding",
+        "未知 action は action 名を description にする"
+    )
 }
 
 @MainActor

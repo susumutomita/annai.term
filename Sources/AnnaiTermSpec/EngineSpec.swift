@@ -9,6 +9,7 @@ private func sampleCatalog() -> [Keybinding] {
         """
         keybind = super+==increase_font_size:1
         keybind = super+c=copy_to_clipboard:mixed
+        keybind = super+shift+return=toggle_split_zoom
         """
     ).keybindings
     return ghostty + herdrDefaultCatalog()
@@ -24,7 +25,12 @@ private func runRetrieveSpec() {
     )
     expect(
         retrieve("右に分割したい", catalog: catalog).first?.action == "split_vertical",
-        "「分割」は split を引く"
+        "「分割」は Ghostty の toggle_split_zoom ではなく Herdr の split_vertical を引く"
+    )
+    let paneLeft = retrieve("左のペインに移動", catalog: catalog).first
+    expect(
+        paneLeft?.action == "focus_pane" && paneLeft?.description == "左のペインへ移動",
+        "「左のペインに移動」は Herdr の focus_pane 左を最上位にする"
     )
     expect(
         retrieve("作業を残して抜けたい", catalog: catalog).first?.action == "detach",
